@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Data Viewer</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        .container {
+            margin: 20px;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search for keywords.." onkeyup="searchTable()">
+        </div>
+        <table id="dataTable">
+            <thead>
+                <tr id="tableHeaders">
+                    <!-- Headers will be populated here -->
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const response = await fetch('data.json'); // Fetch the JSON data
+            const data = await response.json();
+            populateTable(data);
+        }
+
+        function populateTable(data) {
+            const headers = Object.keys(data[0]);
+            const tableHeaders = document.getElementById('tableHeaders');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.innerText = header;
+                tableHeaders.appendChild(th);
+            });
+
+            const tableBody = document.getElementById('tableBody');
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    td.innerText = row[header];
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('dataTable');
+            const trs = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < trs.length; i++) {
+                const tds = trs[i].getElementsByTagName('td');
+                let display = false;
+                for (let j = 0; j < tds.length; j++) {
+                    if (tds[j]) {
+                        if (tds[j].innerText.toLowerCase().indexOf(filter) > -1) {
+                            display = true;
+                        }
+                    }
+                }
+                trs[i].style.display = display ? '' : 'none';
+            }
+        }
+
+        fetchData();
+    </script>
+</body>
+</html>
